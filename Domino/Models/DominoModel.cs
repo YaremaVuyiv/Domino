@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Domino
+namespace Domino.Models
 {
     public struct DominoModel : IComparable
     {
@@ -28,11 +28,6 @@ namespace Domino
             return (First + Second).CompareTo(compareObject.First + compareObject.Second);
         }
 
-        public override string ToString()
-        {
-            return $"_{First}i{Second}_";
-        }
-
         public override bool Equals(object obj)
         {
             if (obj is DominoModel)
@@ -42,11 +37,6 @@ namespace Domino
                     (First == equalObject.Second && Second == equalObject.First);
             }
             return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
         }
 
         public void SwapValues()

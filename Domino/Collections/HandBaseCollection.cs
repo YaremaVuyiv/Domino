@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Collections.Specialized;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Collections.ObjectModel;
+using Domino.Models;
 
-namespace Domino
+namespace Domino.Collections
 {
     public class HandBaseCollection
     {
