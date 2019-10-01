@@ -55,10 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="BankCollection.cs" />
-    <Compile Include="HandDominoCollection.cs" />
-    <Compile Include="OpponentDominoCollection.cs" />
-    <Compile Include="StringExtensions.cs" />
+    <Compile Include="HandBaseCollection.cs" />
     <Compile Include="TableDominoCollection.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -68,17 +65,13 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Constants.cs" />
     <Compile Include="DominoModel.cs" />
-    <Compile Include="DominoModelExtensionMethods.cs" />
-    <Compile Include="DominosBaseCollection.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MyDominosCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -14,12 +14,13 @@ namespace Domino
     /// </summary>
     public partial class MainWindow : Window
     {
+        private Label _selectedDomino;
+
         private List<DominoModel> _allDominos;
 
-        private MyDominosCollection _myDominosCollection;
+        private HandBaseCollection _myDominosCollection;
         private TableDominoCollection _tableDominoCollection;
-        private OpponentDominoCollection _opponentDominoCollection;
-        private BankCollection _bankCollection;
+        private HandBaseCollection _opponentDominoCollection;
         public MainWindow()
         {
             
@@ -40,19 +41,15 @@ namespace Domino
                 .Min();
 
             _tableDominoCollection = new TableDominoCollection(new List<DominoModel> { startDomino });
-            _tableDominoCollection.Dominos.CollectionChanged += Dominos_CollectionChanged;
-            TableListView.ItemsSource = _tableDominoCollection.DominosLables;
+            TableListView.ItemsSource = _tableDominoCollection.Dominos;
 
-            _opponentDominoCollection = new OpponentDominoCollection(opponentsDominos, _tableDominoCollection);
-            _opponentDominoCollection.Dominos.CollectionChanged += Dominos_CollectionChanged;
-            OpponentHandListView.ItemsSource = _opponentDominoCollection.DominosLables;
+            _opponentDominoCollection = new HandBaseCollection(opponentsDominos, _tableDominoCollection);
+            OpponentHandListView.ItemsSource = _opponentDominoCollection.Dominos;
 
-            _myDominosCollection = new MyDominosCollection(myDominos, _tableDominoCollection);
-            _myDominosCollection.Dominos.CollectionChanged += Dominos_CollectionChanged;
-            MyHandListView.ItemsSource = _myDominosCollection.DominosLables;
+            _myDominosCollection = new HandBaseCollection(myDominos, _tableDominoCollection);
+            MyHandListView.ItemsSource = _myDominosCollection.Dominos;
 
-            _bankCollection = new BankCollection(_allDominos);
-            BankListView.ItemsSource = _bankCollection.DominosLables;
+            BankListView.ItemsSource = _allDominos;
 
             if (myDominos.Contains(startDomino))
             {
@@ -62,14 +59,6 @@ namespace Domino
             {
                 _opponentDominoCollection.Dominos.Remove(startDomino);
             }
-        }
-
-        private void Dominos_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            TableListView.Items.Refresh();
-            MyHandListView.Items.Refresh();
-            OpponentHandListView.Items.Refresh();
-            BankListView.Items.Refresh();
         }
 
         private List<DominoModel> GetAllDominos()
@@ -93,16 +82,21 @@ namespace Domino
 
             for (int i = 0; i < 7; i++)
             {
-                result.Add(GetRandomDomino());
+                result.Add(GetRandomDomino().Value);
             }
 
             return result;
         }
 
-        private DominoModel GetRandomDomino()
+        private DominoModel? GetRandomDomino()
         {
+            if(_allDominos.Count == 0)
+            {
+                return null;
+            }
+
             var rnd = new Random();
-            var index = rnd.Next(0, _allDominos.Count() - 1);
+            var index = rnd.Next(0, _allDominos.Count - 1);
             var result = _allDominos[index];
             _allDominos.RemoveAt(index);
             return result;
@@ -110,12 +104,68 @@ namespace Domino
 
         private void TakeButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!_myDominosCollection.HasDominosToPut() && _allDominos.Count != 0)
+            if (!_myDominosCollection.HasDominoToPlace())
             {
-                var domino = GetRandomDomino();
-                _bankCollection.Dominos.Remove(domino);
-                _myDominosCollection.Dominos.Add(domino);
+                var bankDomino = GetRandomDomino();
+                if (bankDomino.HasValue)
+                {
+                    _myDominosCollection.AddNewDomino(bankDomino.Value);
+                    RefreshAllItemSources();
+                }
             }
+        }
+
+        private void MyHandLabel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var label = sender as Label;
+            DeselectSelectedDomino();
+
+            _selectedDomino = label;
+
+            if (_tableDominoCollection.IsDominoOkForLeft(new DominoModel(label.Content.ToString())))
+            {
+                TableLeftDomino.Visibility = Visibility.Visible;
+            }
+
+            if (_tableDominoCollection.IsDominoOkForRight(new DominoModel(label.Content.ToString())))
+            {
+                TableRightDomino.Visibility = Visibility.Visible;
+            }
+            label.Background = Brushes.Green;
+        }
+
+        private void TableLeftDomino_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DeselectSelectedDomino();
+            var domino = new DominoModel(_selectedDomino.Content.ToString());
+            _tableDominoCollection.AddToLeft(domino);
+            RefreshAllItemSources();
+        }
+
+        private void TableRightDomino_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DeselectSelectedDomino();
+            var domino = new DominoModel(_selectedDomino.Content.ToString());
+            _tableDominoCollection.AddToRight(domino);
+            RefreshAllItemSources();
+        }
+
+        private void DeselectSelectedDomino()
+        {
+            if (_selectedDomino != null)
+            {
+                _selectedDomino.Background = Brushes.Turquoise;
+                TableLeftDomino.Visibility = Visibility.Collapsed;
+                TableRightDomino.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void RefreshAllItemSources()
+        {
+            TableListView.Items.Refresh();
+            MyHandListView.Items.Refresh();
+            OpponentHandListView.Items.Refresh();
+            BankListView.Items.Refresh();
         }
     }
 }

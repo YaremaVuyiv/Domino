@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Windows;
@@ -9,100 +10,66 @@ using System.Windows.Media;
 
 namespace Domino
 {
-    public class TableDominoCollection : DominosBaseCollection
+    public class TableDominoCollection
     {
-        public FrameworkElement LeftDominoElement { get; private set; }
-        public FrameworkElement RightDominoElement { get; private set; }
+        public ObservableCollection<DominoModel> Dominos { get; }
 
-        public byte LeftNumber { get; private set; }
-        public byte RightNumber { get; private set; }
+        private byte _leftNumber;
+        private byte _rightNumber;
 
-        public event Action<FrameworkElement> LeftDominoClicked;
-        public event Action<FrameworkElement> RightDominoClicked;
+        public event Action<object, NotifyCollectionChangedEventArgs> TableCollectionChanged;
 
-        public TableDominoCollection(IEnumerable<DominoModel> dominos) : base(dominos, true)
+        public TableDominoCollection(IEnumerable<DominoModel> dominos)
         {
-            Dominos.CollectionChanged += TableDominos_CollectionChanged;
+            Dominos = new ObservableCollection<DominoModel>(dominos);
+            
+            _leftNumber = dominos.ToList().SingleOrDefault().First;
+            _rightNumber = dominos.ToList().SingleOrDefault().Second;
 
-            LeftDominoElement = "_xix_".GetVisibleLabel();
-            LeftDominoElement.MouseLeftButtonDown += LeftDominoElement_MouseLeftButtonDown;
-            RightDominoElement = "_xix_".GetVisibleLabel();
-            RightDominoElement.MouseLeftButtonDown += RightDominoElement_MouseLeftButtonDown;
-            DominosLables.Insert(0, LeftDominoElement);
-            DominosLables.Add(RightDominoElement);
-            LeftNumber = dominos.ToList().SingleOrDefault().First;
-            RightNumber = dominos.ToList().SingleOrDefault().Second;
+            Dominos.CollectionChanged += Dominos_CollectionChanged;
         }
 
-        private void RightDominoElement_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void Dominos_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            RightDominoClicked?.Invoke(sender as FrameworkElement);
+            TableCollectionChanged.Invoke(sender, e);
         }
 
-        private void LeftDominoElement_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        public void AddToLeft(DominoModel domino)
         {
-            LeftDominoClicked?.Invoke(sender as FrameworkElement);
-        }
-
-        private void TableDominos_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            var domino = e.NewItems.Cast<DominoModel>().Single();
-            switch (e.Action)
+            if (IsDominoOkForLeft(domino))
             {
-                case NotifyCollectionChangedAction.Add:
-                    {
-                        
-                        if (Dominos.First().Equals(domino))
-                        {
-                            if(LeftNumber == domino.First)
-                            {
-                                LeftNumber = domino.Second;
-                                domino.SwapValues();
-                            }
-                            else
-                            {
-                                LeftNumber = domino.First;
-                            }
-                            var dominoLabel = domino.GetVisibleLabel();
-                            DominosLables.Insert(1, dominoLabel);
-                        }
-                        else
-                        {
-                            if(RightNumber == domino.First)
-                            {
-                                RightNumber = domino.Second;
-                            }
-                            else
-                            {
-                                RightNumber = domino.First;
-                                domino.SwapValues();
-                            }
-                            var dominoLabel = domino.GetVisibleLabel();
-                            DominosLables.Insert(DominosLables.Count - 1, dominoLabel);
-                        }
-                        break;
-                    }
+                if(_leftNumber != domino.Second)
+                {
+                    domino.SwapValues();
+                }
+
+                _leftNumber = domino.First;
+                Dominos.Insert(0, domino);
             }
         }
 
-        public void SetLeftTableDominoColor(SolidColorBrush color)
+        public void AddToRight(DominoModel domino)
         {
-            (LeftDominoElement as Label).Background = color;
-        }
+            if (IsDominoOkForRight(domino))
+            {
+                if(_rightNumber != domino.First)
+                {
+                    domino.SwapValues();
+                }
 
-        public void SetRightTableDominoColor(SolidColorBrush color)
-        {
-            (RightDominoElement as Label).Background = color;
+                _rightNumber = domino.Second;
+                Dominos.Add(domino);
+            }
         }
 
         public bool IsDominoOkForRight(DominoModel dominoModel)
         {
-            return RightNumber == dominoModel.First || RightNumber == dominoModel.Second;
+            return _rightNumber == dominoModel.First || _rightNumber == dominoModel.Second;
         }
 
         public bool IsDominoOkForLeft(DominoModel dominoModel)
         {
-            return LeftNumber == dominoModel.First || LeftNumber == dominoModel.Second;
+            return _leftNumber == dominoModel.First || _leftNumber == dominoModel.Second;
         }
     }
 }

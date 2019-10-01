@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 namespace Domino
 {
@@ -11,16 +10,17 @@ namespace Domino
             Second = second;
         }
 
-        public DominoModel(string name)
+        public DominoModel(string stringContent)
         {
-            var splittedName = name.Split('i');
-            First = Convert.ToByte(splittedName.First());
-            Second = Convert.ToByte(splittedName.Last());
+            First = byte.Parse(stringContent.Split('/')[0]);
+            Second = byte.Parse(stringContent.Split('/')[1]);
         }
 
         public byte First { get; private set; }
 
         public byte Second { get; private set; }
+
+        public string StringValue { get => $"{First}/{Second}"; }
 
         public int CompareTo(object obj)
         {
@@ -35,9 +35,13 @@ namespace Domino
 
         public override bool Equals(object obj)
         {
-            var equalObject = (DominoModel)obj;
-            return (First == equalObject.First && Second == equalObject.Second) ||
-                (First == equalObject.Second && Second == equalObject.First);
+            if (obj is DominoModel)
+            {
+                var equalObject = (DominoModel)obj;
+                return (First == equalObject.First && Second == equalObject.Second) ||
+                    (First == equalObject.Second && Second == equalObject.First);
+            }
+            return false;
         }
 
         public override int GetHashCode()
