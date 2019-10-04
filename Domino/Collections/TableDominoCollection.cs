@@ -11,8 +11,8 @@ namespace Domino.Collections
     {
         public ObservableCollection<DominoModel> Dominos { get; }
 
-        private byte _leftNumber;
-        private byte _rightNumber;
+        public byte LeftNumber { get; private set; }
+        public byte RightNumber { get; private set; }
 
         public event Action<object, NotifyCollectionChangedEventArgs> TableCollectionChanged;
 
@@ -20,8 +20,8 @@ namespace Domino.Collections
         {
             Dominos = new ObservableCollection<DominoModel>(dominos);
             
-            _leftNumber = dominos.ToList().SingleOrDefault().First;
-            _rightNumber = dominos.ToList().SingleOrDefault().Second;
+            LeftNumber = dominos.ToList().SingleOrDefault().First;
+            RightNumber = dominos.ToList().SingleOrDefault().Second;
 
             Dominos.CollectionChanged += Dominos_CollectionChanged;
         }
@@ -35,12 +35,12 @@ namespace Domino.Collections
         {
             if (IsDominoOkForLeft(domino))
             {
-                if(_leftNumber != domino.Second)
+                if(LeftNumber != domino.Second)
                 {
                     domino.SwapValues();
                 }
 
-                _leftNumber = domino.First;
+                LeftNumber = domino.First;
                 Dominos.Insert(0, domino);
             }
         }
@@ -49,24 +49,24 @@ namespace Domino.Collections
         {
             if (IsDominoOkForRight(domino))
             {
-                if(_rightNumber != domino.First)
+                if(RightNumber != domino.First)
                 {
                     domino.SwapValues();
                 }
 
-                _rightNumber = domino.Second;
+                RightNumber = domino.Second;
                 Dominos.Add(domino);
             }
         }
 
         public bool IsDominoOkForRight(DominoModel dominoModel)
         {
-            return _rightNumber == dominoModel.First || _rightNumber == dominoModel.Second;
+            return RightNumber == dominoModel.First || RightNumber == dominoModel.Second;
         }
 
         public bool IsDominoOkForLeft(DominoModel dominoModel)
         {
-            return _leftNumber == dominoModel.First || _leftNumber == dominoModel.Second;
+            return LeftNumber == dominoModel.First || LeftNumber == dominoModel.Second;
         }
     }
 }

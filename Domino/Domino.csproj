@@ -57,6 +57,11 @@
     </ApplicationDefinition>
     <Compile Include="Collections\HandBaseCollection.cs" />
     <Compile Include="Collections\TableDominoCollection.cs" />
+    <Compile Include="Rules\BaseRule.cs" />
+    <Compile Include="Services\AIService.cs" />
+    <Compile Include="Services\BankService.cs" />
+    <Compile Include="Services\LogicService.cs" />
+    <Compile Include="Services\StartGameService.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -97,5 +102,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -36,46 +36,51 @@
             </ListView.ItemsPanel>
         </ListView>
         <Grid 
+            MaxWidth="1500"
             Name="myGrid"
-            Background="LightSteelBlue"
+            Background="Red"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition MaxWidth="1500"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Label
-                Width="30"
+                Width="20"
                 Height="60"
                 Background="Black"
                 Name="TableLeftDomino"
+                TextBlock.FontSize="8"
                 Grid.Column="0" Grid.Row="0"
                 Visibility="Collapsed"
                 MouseLeftButtonDown="TableLeftDomino_MouseLeftButtonDown"
                 />
             <ListView 
-            HorizontalAlignment="Center"
             VerticalAlignment="Center"
             Name="TableListView"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             ScrollViewer.VerticalScrollBarVisibility="Disabled"
                 Grid.Column="1"
                 Grid.Row="0"
+                Grid.ColumnSpan="3"
             >
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <WrapPanel
                         ItemHeight="40"
-                        ItemWidth="40"
+                        ItemWidth="20"
                         Background="Yellow"
+                            Margin="0"
                         HorizontalAlignment="Center">
                             <Label
                             Height="60"
-                            Width="30"
+                                Padding="0"
+                                Margin="0"
+                            Width="20"
                             Background="Turquoise"
                             Content="{Binding StringValue}"
                             ></Label>
@@ -89,11 +94,12 @@
                 </ListView.ItemsPanel>
             </ListView>
             <Label
-                Width="30"
+                Width="20"
                 Height="60"
                 Background="Black"
                 Name="TableRightDomino"
-                Grid.Column="2" Grid.Row="0"
+                Grid.Column="2"
+                Grid.Row="0"
                 Visibility="Collapsed"
                 MouseLeftButtonDown="TableRightDomino_MouseLeftButtonDown"
                 />
@@ -130,7 +136,7 @@
             </ListView.ItemsPanel>
         </ListView>
         <ListView 
-            HorizontalAlignment="Left"
+            HorizontalAlignment="Right"
             VerticalAlignment="Center"
             Name="BankListView"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -155,7 +161,9 @@
         <Button
             Height="50"
             Width="100"
-            HorizontalAlignment="Right"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            
             Name="TakeButton"
             Content="Take"
             Click="TakeButton_Click"

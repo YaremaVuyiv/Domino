@@ -1,5 +1,6 @@
 ﻿using Domino.Collections;
 using Domino.Models;
+using Domino.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,103 +18,37 @@ namespace Domino
     {
         private Label _selectedDomino;
 
-        private List<DominoModel> _allDominos;
+        private readonly LogicService _logicService;
+        private readonly StartGameService _startGameService;
+        private readonly AIService _aIService;
 
-        private HandBaseCollection _myDominosCollection;
-        private TableDominoCollection _tableDominoCollection;
-        private HandBaseCollection _opponentDominoCollection;
         public MainWindow()
         {
-            
             InitializeComponent();
-            _allDominos = GetAllDominos();
-            StartFirstTurn();
+            _startGameService = new StartGameService();
+            _logicService = new LogicService(_startGameService.TableDominoCollection,
+                _startGameService.MyDominosCollection, _startGameService.BankService);
+
+            _aIService = new AIService(new LogicService(_startGameService.TableDominoCollection,
+                _startGameService.OpponentDominosCollection, _startGameService.BankService));
+            _aIService.AiTurnFinished += AiService_AiTurnFinished;
+
+            MyHandListView.ItemsSource = _startGameService.MyDominosCollection.Dominos;
+            TableListView.ItemsSource = _startGameService.TableDominoCollection.Dominos;
+            OpponentHandListView.ItemsSource = _startGameService.OpponentDominosCollection.Dominos;
+            BankListView.ItemsSource = _startGameService.AllDominos;
         }
 
-        private void StartFirstTurn()
+        private void AiService_AiTurnFinished()
         {
-            var opponentsDominos = TakeSevenRandomDominos();
-            var myDominos = TakeSevenRandomDominos();
-
-            var unionDominos = myDominos.Union(opponentsDominos);
-            var startDomino = unionDominos
-                .Where(d => d.First == d.Second)
-                .DefaultIfEmpty(unionDominos.Max())
-                .Min();
-
-            _tableDominoCollection = new TableDominoCollection(new List<DominoModel> { startDomino });
-            TableListView.ItemsSource = _tableDominoCollection.Dominos;
-
-            _opponentDominoCollection = new HandBaseCollection(opponentsDominos, _tableDominoCollection);
-            OpponentHandListView.ItemsSource = _opponentDominoCollection.Dominos;
-
-            _myDominosCollection = new HandBaseCollection(myDominos, _tableDominoCollection);
-            MyHandListView.ItemsSource = _myDominosCollection.Dominos;
-
-            BankListView.ItemsSource = _allDominos;
-
-            if (myDominos.Contains(startDomino))
-            {
-                _myDominosCollection.Dominos.Remove(startDomino);
-            }
-            else
-            {
-                _opponentDominoCollection.Dominos.Remove(startDomino);
-            }
-        }
-
-        private List<DominoModel> GetAllDominos()
-        {
-            var result = new List<DominoModel>();
-
-            for (byte i = 0; i < 7; i++)
-            {
-                for (byte j = i; j < 7; j++)
-                {
-                    result.Add(new DominoModel(i, j));
-                }
-            }
-
-            return result;
-        }
-
-        private List<DominoModel> TakeSevenRandomDominos()
-        {
-            var result = new List<DominoModel>();
-
-            for (int i = 0; i < 7; i++)
-            {
-                result.Add(GetRandomDomino().Value);
-            }
-
-            return result;
-        }
-
-        private DominoModel? GetRandomDomino()
-        {
-            if(_allDominos.Count == 0)
-            {
-                return null;
-            }
-
-            var rnd = new Random();
-            var index = rnd.Next(0, _allDominos.Count - 1);
-            var result = _allDominos[index];
-            _allDominos.RemoveAt(index);
-            return result;
+            RefreshAllItemSources();
         }
 
         private void TakeButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!_myDominosCollection.HasDominoToPlace())
-            {
-                var bankDomino = GetRandomDomino();
-                if (bankDomino.HasValue)
-                {
-                    _myDominosCollection.AddNewDomino(bankDomino.Value);
-                    RefreshAllItemSources();
-                }
-            }
+            _logicService.TakeDominoFromBank();
+
+            RefreshAllItemSources();
         }
 
         private void MyHandLabel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -123,12 +58,12 @@ namespace Domino
 
             _selectedDomino = label;
 
-            if (_tableDominoCollection.IsDominoOkForLeft(new DominoModel(label.Content.ToString())))
+            if (_logicService.IsDominoOkForTableLeft(label.Content.ToString()))
             {
                 TableLeftDomino.Visibility = Visibility.Visible;
             }
 
-            if (_tableDominoCollection.IsDominoOkForRight(new DominoModel(label.Content.ToString())))
+            if (_logicService.IsDominoOkForTableRight(label.Content.ToString()))
             {
                 TableRightDomino.Visibility = Visibility.Visible;
             }
@@ -138,17 +73,19 @@ namespace Domino
         private void TableLeftDomino_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             DeselectSelectedDomino();
-            var domino = new DominoModel(_selectedDomino.Content.ToString());
-            _tableDominoCollection.AddToLeft(domino);
+            _logicService.AddDominoToLeft(_selectedDomino.Content.ToString());
             RefreshAllItemSources();
+
+            _aIService.StartTurn();
         }
 
         private void TableRightDomino_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             DeselectSelectedDomino();
-            var domino = new DominoModel(_selectedDomino.Content.ToString());
-            _tableDominoCollection.AddToRight(domino);
+            _logicService.AddDominoToRight(_selectedDomino.Content.ToString());
             RefreshAllItemSources();
+
+            _aIService.StartTurn();
         }
 
         private void DeselectSelectedDomino()

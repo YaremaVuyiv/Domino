@@ -2,7 +2,7 @@
 
 namespace Domino.Models
 {
-    public struct DominoModel : IComparable
+    public class DominoModel : IComparable
     {
         public DominoModel(byte first, byte second)
         {
@@ -28,11 +28,15 @@ namespace Domino.Models
             return (First + Second).CompareTo(compareObject.First + compareObject.Second);
         }
 
+        public bool ContainsNumber(byte number)
+        {
+            return number == First || number == Second;
+        }
+
         public override bool Equals(object obj)
         {
-            if (obj is DominoModel)
+            if (obj is DominoModel equalObject)
             {
-                var equalObject = (DominoModel)obj;
                 return (First == equalObject.First && Second == equalObject.Second) ||
                     (First == equalObject.Second && Second == equalObject.First);
             }

@@ -8,7 +8,7 @@ namespace Domino.Collections
     public class HandBaseCollection
     {
         public List<DominoModel> Dominos { get; }
-        private TableDominoCollection _tableDominosCollection;
+        private readonly TableDominoCollection _tableDominosCollection;
 
         public HandBaseCollection(IEnumerable<DominoModel> dominos, TableDominoCollection tableDominoCollection)
         {
