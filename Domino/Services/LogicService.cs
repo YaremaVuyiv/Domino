@@ -102,5 +102,17 @@ namespace Domino.Services
 
             }
         }
+
+        public void AddDominoIfAvailable(DominoModel domino)
+        {
+            if (IsDominoOkForTableLeft(domino))
+            {
+                AddDominoToLeft(domino);
+            }
+            else
+            {
+                AddDominoToRight(domino);
+            }
+        }
     }
 }

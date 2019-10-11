@@ -27,21 +27,22 @@ namespace Domino.Services
                 _logicService.TakeDominoFromBank();
             }
 
-            if(GetAvailableDominos().Count == 0)
+            if (GetAvailableDominos().Count == 0)
             {
+                return;
+            }
+
+            if(GetPressureCalculatedWithTable(out var superPressureDomino))
+            {
+                _logicService.AddDominoIfAvailable(superPressureDomino);
+
+                AiTurnFinished?.Invoke();
                 return;
             }
 
             if (IsOnlyMove(out var onlyDomino))
             {
-                if (_logicService.IsDominoOkForTableLeft(onlyDomino))
-                {
-                    _logicService.AddDominoToLeft(onlyDomino);
-                }
-                else
-                {
-                    _logicService.AddDominoToRight(onlyDomino);
-                }
+                _logicService.AddDominoIfAvailable(onlyDomino);
 
                 AiTurnFinished?.Invoke();
                 return;
@@ -49,17 +50,10 @@ namespace Domino.Services
 
             if (HasPressure(out var pressureValue))
             {
-                var pressureDomino = GetPressureDomino(pressureValue);
+                var pressureDomino = GetAvailableDominos(pressureValue).LastOrDefault();// GetPressureDomino(pressureValue);
                 if (pressureDomino != null)
                 {
-                    if (_logicService.IsDominoOkForTableLeft(pressureDomino))
-                    {
-                        _logicService.AddDominoToLeft(pressureDomino);
-                    }
-                    else
-                    {
-                        _logicService.AddDominoToRight(pressureDomino);
-                    }
+                    _logicService.AddDominoIfAvailable(pressureDomino);
 
                     AiTurnFinished?.Invoke();
                     return;
@@ -68,15 +62,69 @@ namespace Domino.Services
 
             var defenderDomino = GetDefenderDomino();
 
-            if (_logicService.IsDominoOkForTableLeft(defenderDomino))
-            {
-                _logicService.AddDominoToLeft(defenderDomino);
-            }
-            else
-            {
-                _logicService.AddDominoToRight(defenderDomino);
-            }
+            _logicService.AddDominoIfAvailable(defenderDomino);
             AiTurnFinished?.Invoke();
+        }
+
+        private bool GetPressureCalculatedWithTable(out DominoModel domino)
+        {
+            /*var edgeValues = new List<byte> { _logicService.TableRightNumber, _logicService.TableLeftNumber };
+            _logicService.MyDominos.Join(edgeValues, d=>d.First, d=>d, (a, b)=> new {First = a. })*/
+
+            var dictionary = new SortedDictionary<byte, int>();
+            _logicService.MyDominos.ForEach(d =>
+            {
+                if (dictionary.ContainsKey(d.First))
+                {
+                    dictionary[d.First]++;
+                }
+                else
+                {
+                    dictionary.Add(d.First, 1);
+                }
+
+                if (dictionary.ContainsKey(d.Second))
+                {
+                    dictionary[d.Second]++;
+                }
+                else
+                {
+                    dictionary.Add(d.Second, 1);
+                }
+            });
+
+            _logicService.TableDominos.ForEach(d =>
+            {
+                if (dictionary.ContainsKey(d.First))
+                {
+                    dictionary[d.First]++;
+                }
+
+                if (dictionary.ContainsKey(d.Second))
+                {
+                    dictionary[d.Second]++;
+                }
+            });
+
+            DominoModel result = null;
+
+            dictionary.Where(p => p.Value >= 6).ToList().ForEach(d =>
+            {
+                var availableDominos = GetAvailableDominos(d.Key);
+                if (availableDominos.Count != 0)
+                {
+                    result = availableDominos.LastOrDefault();
+                }
+            });
+
+            if (result != null)
+            {
+                domino = result;
+                return true;
+            }
+
+            domino = null;
+            return false;
         }
 
         private DominoModel GetDefenderDomino()
@@ -152,6 +200,23 @@ namespace Domino.Services
             var leftAvailableDominos = _logicService.MyDominos.Where(d => _logicService.IsDominoOkForTableLeft(d));
             var rightAvailableDominos = _logicService.MyDominos.Where(d => _logicService.IsDominoOkForTableRight(d));
             return leftAvailableDominos.Union(rightAvailableDominos).ToList();
+        }
+
+        private List<DominoModel> GetAvailableDominos(byte pressureNumber)
+        {
+            return _logicService.MyDominos
+                .Where(d =>
+                {
+                    var isFirstNumberOkForTable = d.First == _logicService.TableLeftNumber
+                    || d.First == _logicService.TableRightNumber;
+                    var isSecondNumberOkForTable = d.Second == _logicService.TableLeftNumber
+                    || d.Second == _logicService.TableRightNumber;
+                    var isFirstNumberOkForPressure = d.First == pressureNumber;
+                    var isSecondNumberOkForPressure = d.Second == pressureNumber;
+
+                    return (isFirstNumberOkForTable && isSecondNumberOkForPressure) ||
+                    (isSecondNumberOkForTable && isFirstNumberOkForPressure);
+                }).ToList();
         }
 
         private int LaterPryd(DominoModel domino)
