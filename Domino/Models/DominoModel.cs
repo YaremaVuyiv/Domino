@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Linq;
 
 namespace Domino.Models
 {
     public class DominoModel : IComparable
     {
-        public DominoModel(byte first, byte second)
+        public DominoModel(int first, int second)
         {
             First = first;
             Second = second;
@@ -12,15 +13,23 @@ namespace Domino.Models
 
         public DominoModel(string stringContent)
         {
-            First = byte.Parse(stringContent.Split('/')[0]);
-            Second = byte.Parse(stringContent.Split('/')[1]);
+            var imageName = stringContent.Split('/').Last();
+            var digits = imageName.Where(c => char.IsDigit(c));
+            First = int.Parse(digits.First().ToString());
+            Second = int.Parse(digits.Last().ToString());
         }
 
-        public byte First { get; private set; }
+        public int First { get; private set; }
 
-        public byte Second { get; private set; }
+        public int Second { get; private set; }
 
-        public string StringValue { get => $"{First}/{Second}"; }
+        //public string StringValue { get => $"{First}/{Second}"; }
+
+        public string ImageResource { get; set; }
+
+        //public string ImageVerticalResource { get => $"Images/_{First}v{Second}_.png"; }
+
+        //public string ImageHorizontalResource { get => $"Images/_{First}h{Second}_.png"; }
 
         public int CompareTo(object obj)
         {
@@ -28,7 +37,7 @@ namespace Domino.Models
             return (First + Second).CompareTo(compareObject.First + compareObject.Second);
         }
 
-        public bool ContainsNumber(byte number)
+        public bool ContainsNumber(int number)
         {
             return number == First || number == Second;
         }

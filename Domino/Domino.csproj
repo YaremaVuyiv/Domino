@@ -57,7 +57,7 @@
     </ApplicationDefinition>
     <Compile Include="Collections\HandBaseCollection.cs" />
     <Compile Include="Collections\TableDominoCollection.cs" />
-    <Compile Include="Rules\BaseRule.cs" />
+    <Compile Include="Collections\TableDominoResourceCollection.cs" />
     <Compile Include="Services\AIService.cs" />
     <Compile Include="Services\BankService.cs" />
     <Compile Include="Services\LogicService.cs" />
@@ -93,6 +93,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -102,7 +103,10 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\horizontalBack.png" />
+    <Resource Include="Images\verticalBack.png" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\_0h0_.png" />
     <Resource Include="Images\_0h1_.png" />
@@ -188,20 +192,26 @@
     <Resource Include="Images\_5v4_.png" />
     <Resource Include="Images\_5v5_.png" />
     <Resource Include="Images\_5v6_.png" />
-    <Resource Include="Images\_6h0_ .png" />
+    <Resource Include="Images\_6h0_.png" />
     <Resource Include="Images\_6h1_.png" />
     <Resource Include="Images\_6h2_.png" />
     <Resource Include="Images\_6h3_.png" />
     <Resource Include="Images\_6h4_.png" />
     <Resource Include="Images\_6h5_.png" />
     <Resource Include="Images\_6h6_.png" />
-    <Resource Include="Images\_6v0_ .png" />
     <Resource Include="Images\_6v1_.png" />
     <Resource Include="Images\_6v2_.png" />
     <Resource Include="Images\_6v3_.png" />
     <Resource Include="Images\_6v4_.png" />
     <Resource Include="Images\_6v5_.png" />
     <Resource Include="Images\_6v6_.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\horizontalSelectable.png" />
+    <Resource Include="Images\verticalSelectable.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\_6v0_.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -71,7 +71,7 @@ namespace Domino.Services
             /*var edgeValues = new List<byte> { _logicService.TableRightNumber, _logicService.TableLeftNumber };
             _logicService.MyDominos.Join(edgeValues, d=>d.First, d=>d, (a, b)=> new {First = a. })*/
 
-            var dictionary = new SortedDictionary<byte, int>();
+            var dictionary = new SortedDictionary<int, int>();
             _logicService.MyDominos.ForEach(d =>
             {
                 if (dictionary.ContainsKey(d.First))
@@ -144,7 +144,7 @@ namespace Domino.Services
             return domino;
         }
 
-        private DominoModel GetPressureDomino(byte pressureValue)
+        private DominoModel GetPressureDomino(int pressureValue)
         {
             var availableDominosWithPressure = GetAvailableDominos()?.Where(d => d.ContainsNumber(pressureValue)).ToList();
             if (availableDominosWithPressure.Exists(d => d.First == d.Second))
@@ -160,16 +160,16 @@ namespace Domino.Services
                 }).LastOrDefault();
         }
 
-        private bool HasPressure(out byte value)
+        private bool HasPressure(out int value)
         {
-            var array = new byte[7];
+            var array = new int[7];
             for (int i = 6; i >= 0; i--)
             {
-                array[i] = (byte)_logicService.MyDominos.Where(d => d.ContainsNumber((byte)i)).Count();
+                array[i] = _logicService.MyDominos.Where(d => d.ContainsNumber(i)).Count();
             }
 
             var index = array.ToList().IndexOf(array.Max());
-            value = (byte)index;
+            value = index;
 
             return array[index] >= 3;
         }
@@ -202,7 +202,7 @@ namespace Domino.Services
             return leftAvailableDominos.Union(rightAvailableDominos).ToList();
         }
 
-        private List<DominoModel> GetAvailableDominos(byte pressureNumber)
+        private List<DominoModel> GetAvailableDominos(int pressureNumber)
         {
             return _logicService.MyDominos
                 .Where(d =>

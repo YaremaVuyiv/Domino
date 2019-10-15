@@ -8,14 +8,22 @@ namespace Domino.Collections
     public class HandBaseCollection
     {
         public List<DominoModel> Dominos { get; }
-        private readonly TableDominoCollection _tableDominosCollection;
+        private readonly TableDominoResourceCollection _tableDominosCollection;
 
-        public HandBaseCollection(IEnumerable<DominoModel> dominos, TableDominoCollection tableDominoCollection)
+        public HandBaseCollection(IEnumerable<DominoModel> dominos, TableDominoResourceCollection tableDominoCollection)
         {
             Dominos = dominos.ToList();
             _tableDominosCollection = tableDominoCollection;
 
-            _tableDominosCollection.TableCollectionChanged += TableDominos_CollectionChanged;
+            _tableDominosCollection.TableCollectionDominoAdded += TableDominosCollection_TableCollectionDominoAdded; ;
+        }
+
+        private void TableDominosCollection_TableCollectionDominoAdded(DominoModel domino)
+        {
+            if (Dominos.Contains(domino))
+            {
+                Dominos.Remove(domino);
+            }
         }
 
         public void AddNewDomino(DominoModel domino)

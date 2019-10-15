@@ -10,7 +10,7 @@ namespace Domino.Services
     {
         public HandBaseCollection MyDominosCollection { get; }
         public HandBaseCollection OpponentDominosCollection { get; }
-        public TableDominoCollection TableDominoCollection { get; }
+        public TableDominoResourceCollection TableDominoCollection { get; }
 
         public List<DominoModel> AllDominos { get; }
 
@@ -31,7 +31,8 @@ namespace Domino.Services
                 .DefaultIfEmpty(unionDominos.Max())
                 .Min();
 
-            TableDominoCollection = new TableDominoCollection(new List<DominoModel> { startDomino });
+            //TableDominoCollection = new TableDominoCollection(new List<DominoModel> { startDomino });
+            TableDominoCollection = new TableDominoResourceCollection(startDomino);
             MyDominosCollection = new HandBaseCollection(myDominos, TableDominoCollection);
             OpponentDominosCollection = new HandBaseCollection(opponentsDominos, TableDominoCollection);
 
@@ -54,9 +55,9 @@ namespace Domino.Services
         {
             var result = new List<DominoModel>();
 
-            for (byte i = 0; i < 7; i++)
+            for (int i = 0; i < 7; i++)
             {
-                for (byte j = i; j < 7; j++)
+                for (int j = i; j < 7; j++)
                 {
                     result.Add(new DominoModel(i, j));
                 }

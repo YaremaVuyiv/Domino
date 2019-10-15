@@ -11,15 +11,15 @@ namespace Domino.Services
         public List<DominoModel> MyDominos { get => _myDominosCollection.Dominos; }
         public List<DominoModel> TableDominos { get => _tableDominoCollection.Dominos.ToList(); }
 
-        public byte TableLeftNumber { get => _tableDominoCollection.LeftNumber; }
-        public byte TableRightNumber { get => _tableDominoCollection.RightNumber; }
+        public int TableLeftNumber { get => _tableDominoCollection.LeftNumber; }
+        public int TableRightNumber { get => _tableDominoCollection.RightNumber; }
 
         private readonly HandBaseCollection _myDominosCollection;
-        private readonly TableDominoCollection _tableDominoCollection;
+        private readonly TableDominoResourceCollection _tableDominoCollection;
 
         private readonly BankService _bankService;
 
-        public LogicService(TableDominoCollection tableDominoCollection, HandBaseCollection handCollection,
+        public LogicService(TableDominoResourceCollection tableDominoCollection, HandBaseCollection handCollection,
             BankService bankService)
         {
             _tableDominoCollection = tableDominoCollection;
@@ -37,6 +37,7 @@ namespace Domino.Services
                 var bankDomino = _bankService.GetDominoFromBank();
                 if (bankDomino != null)
                 {
+                    bankDomino.ImageResource = $"Images/_{bankDomino.First}v{bankDomino.Second}_.png";
                     _myDominosCollection.AddNewDomino(bankDomino);
                 }
             }
@@ -81,7 +82,7 @@ namespace Domino.Services
         {
             if (IsDominoOkForTableLeft(domino))
             {
-                _tableDominoCollection.AddToLeft(domino);
+                _tableDominoCollection.TryAddDomino(domino, _tableDominoCollection.PreviousDomino);
             }
 
             if(_bankService.IsBankEmpty() && MyDominos.Count == 0)
@@ -94,7 +95,7 @@ namespace Domino.Services
         {
             if (IsDominoOkForTableRight(domino))
             {
-                _tableDominoCollection.AddToRight(domino);
+                _tableDominoCollection.TryAddDomino(domino, _tableDominoCollection.NextDomino);
             }
 
             if (_bankService.IsBankEmpty() && MyDominos.Count == 0)

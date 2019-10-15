@@ -11,8 +11,8 @@ namespace Domino.Collections
     {
         public ObservableCollection<DominoModel> Dominos { get; }
 
-        public byte LeftNumber { get; private set; }
-        public byte RightNumber { get; private set; }
+        public int LeftNumber { get; private set; }
+        public int RightNumber { get; private set; }
 
         public event Action<object, NotifyCollectionChangedEventArgs> TableCollectionChanged;
 
